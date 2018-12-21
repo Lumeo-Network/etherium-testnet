@@ -1,13 +1,53 @@
-version: '2'
+---
+version: '3.4'
 services:
   geth:
-    image: ethereum/client-go
-    command: --datadir=/root/.ethereum/devchain --nodekeyhex=091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --rpcapi "db,personal,eth,net,web3" --rpccorsdomain='*' --networkid=1234 --rpc --rpcaddr="0.0.0.0" init=/root/files/genesis.json --mine
-    volumes:
-      - ./files/password:/root/files/password:ro
-      - ./files/genesis.json:/root/files/genesis.json:ro
-      - ./files/keystore:/root/.ethereum/devchain/keystore:rw
+    image: com.dwightaspencer.blockchian.geth:${IMAGE_VERSION}
+    hostname: "${VIRTUAL_HOST}"
+    #logging:
+    #  driver: "syslog"
+    #  options:
+    #    syslog-address:  "tcp://{{.Status.Addr}}:6514"
+    deploy:
+      restart_policy: 
+        condition: on-failure
+      replicas: 1
+      labels:
+        - traefik.enabled=true
+        - traefik.docker.network=public
+        - traefik.port=8545
+        - traefik.frontend.priority=5
+        - traefik.frontend.entryPoints="http, https"
+        - traefik.frontend.rule="Host:${VIRTUAL_HOST}"
+        - orbiter.enabled=false
+        - com.centurylinklabs.watchtower.enabled=false
+        traefik.port: "8545"
+        traefik.frontend.priority: "10"
+        traefik.frontend.entryPoints: "http, https"
+        traefik.frontend.rule: "Host:dtr.local"
+        traefik.docker.network: "public"
+        traefik.enabled: "true"
+        traefik.frontend.auth.basic: "dtr:$$apr1$$9Cv/OMGj$$ZomWQzuQbL.3TRCS81A1g/" # dtr:password
+        orbiter: "false"
+        com.centurylinklabs.watchtower.enable: "true"
     ports:
       - "30303:30303"
-      - "30303:30303/udp"
-      - "8545:8545"
+      - "8545/tcp"
+    networks:
+      public:
+        aliases:
+          - "geth"
+          - "${VIRTUAL_HOST}"
+    volumes:
+      - gethdata:/root/files
+
+volumes:
+  gethdata:
+
+networks:
+  public:
+    external:
+      name: public
+
+...
+# vim: set sts=2 sw=2 ts=2 et ai :
