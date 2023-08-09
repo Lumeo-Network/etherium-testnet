@@ -95,6 +95,30 @@ services:
         orbiter.enabled: false
         com.centurylinklabs.watchtower.enabled: false
 
+  newuser:
+    build: monitored-geth-client
+    restart: on-failure
+    depends_on:
+      - bootstrap
+      - netstats
+    networks:
+      public: {}
+      default: {}
+    entrypoint: /root/start.sh
+    deploy:
+      restart_policy: never
+      replicas: 1
+      labels:
+        traefik.enabled: false
+        orbiter.enabled: false
+        com.centurylinklabs.watchtower.enabled: false
+    volumes:
+      - ./files/password:/root/files/password:ro
+      - ./files/genesis.json:/root/files/genesis.json:ro
+      - ./files/keystore:/root/.ethereum/devchain/keystore:rw
+      - /etc/localtime:/etc/localtime:ro
+    command: geth --password <(date | uuidgen) account new
+
 networks:
   default:
     driver: overlay
