@@ -2,7 +2,7 @@
 version: '3.4'
 services:
   geth:
-    image: com.dwightaspencer.blockchian.geth:${IMAGE_VERSION}
+    image: io.lumeo.blockchian.geth:${IMAGE_VERSION}
     hostname: "${VIRTUAL_HOST}"
     #logging:
     #  driver: "syslog"
@@ -27,7 +27,7 @@ services:
         traefik.frontend.rule: "Host:dtr.local"
         traefik.docker.network: "public"
         traefik.enabled: "true"
-        traefik.frontend.auth.basic: "dtr:$$apr1$$9Cv/OMGj$$ZomWQzuQbL.3TRCS81A1g/" # dtr:password
+        traefik.frontend.auth.basic: "#{AUTH_BASIC}"
         orbiter: "false"
         com.centurylinklabs.watchtower.enable: "true"
     ports:
