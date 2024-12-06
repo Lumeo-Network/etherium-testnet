@@ -1,4 +1,4 @@
-FROM node:22.7-alpine as builder
+FROM node:22.12.0-alpine as builder
 
 RUN apk add --nocache git && \
     git clone https://github.com/cubedro/eth-netstats /eth-netstats
@@ -9,7 +9,7 @@ RUN npm install && \
     npm install -g grunt-cli && \
     grunt
 
-FROM node:22.7-alpine
+FROM node:22.12.0-alpine
 
 COPY --from=builder /eth-netstats /app
 
